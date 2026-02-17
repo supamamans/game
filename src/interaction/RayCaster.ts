@@ -20,6 +20,7 @@ export class RayCaster {
   private raycaster: THREE.Raycaster;
   private camera: THREE.PerspectiveCamera;
   private interactables: THREE.Object3D[] = [];
+  private screenCenter: THREE.Vector2 = new THREE.Vector2(0, 0);
 
   constructor(camera: THREE.PerspectiveCamera) {
     this.camera = camera;
@@ -54,7 +55,7 @@ export class RayCaster {
    */
   cast(): RayHit | null {
     // Ray from screen center
-    this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
+    this.raycaster.setFromCamera(this.screenCenter, this.camera);
 
     const intersects = this.raycaster.intersectObjects(this.interactables, true);
 

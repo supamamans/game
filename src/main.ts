@@ -2,17 +2,18 @@
  * The Guardian's Vigil - Main Entry Point
  *
  * Initializes the game engine, detects GPU capabilities,
- * and wires up the start screen.
+ * and wires up the start screen with seed/difficulty selection.
  */
 
 import { Engine } from '@core/Engine';
 import { detectGPU, GPUTier } from '@renderer/detectGPU';
+import { StartScreen } from '@ui/StartScreen';
 
 async function boot(): Promise<void> {
   const statusEl = document.getElementById('gpu-status')!;
   const startBtn = document.getElementById('btn-start') as HTMLButtonElement;
 
-  // Detect WebGPU support
+  // Detect GPU support
   const tier = await detectGPU();
 
   switch (tier) {
@@ -31,12 +32,17 @@ async function boot(): Promise<void> {
       return;
   }
 
+  // Enhance start screen with seed/difficulty inputs
+  const startScreen = new StartScreen();
+
   startBtn.addEventListener('click', async () => {
-    const startScreen = document.getElementById('start-screen')!;
-    startScreen.style.display = 'none';
+    const seed = startScreen.getSeed();
+    const difficulty = startScreen.getDifficulty();
+
+    startScreen.hide();
 
     const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
-    const engine = new Engine(canvas, tier);
+    const engine = new Engine(canvas, tier, seed, difficulty);
     await engine.init();
     engine.start();
   });

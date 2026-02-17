@@ -60,6 +60,12 @@ export class FirstPersonCamera {
   // Temp vectors (avoid allocation)
   private forward: THREE.Vector3 = new THREE.Vector3();
   private right: THREE.Vector3 = new THREE.Vector3();
+  private euler: THREE.Euler = new THREE.Euler(0, 0, 0, 'YXZ');
+
+  // Room bounds for collision (set via setRoomBounds)
+  private boundsMin: THREE.Vector3 | null = null;
+  private boundsMax: THREE.Vector3 | null = null;
+  private readonly PLAYER_RADIUS = 0.3; // collision margin from walls
 
   constructor(camera: THREE.PerspectiveCamera, config?: Partial<FirstPersonConfig>) {
     this.camera = camera;
@@ -130,11 +136,13 @@ export class FirstPersonCamera {
    * Update camera position and rotation each frame.
    */
   update(dt: number): void {
+    if (!this.isLocked) return;
+
     // Build input direction from keys
     this.inputDir.set(0, 0, 0);
 
-    if (this.keys.has('KeyW')) this.inputDir.z -= 1;
-    if (this.keys.has('KeyS')) this.inputDir.z += 1;
+    if (this.keys.has('KeyW')) this.inputDir.z += 1;
+    if (this.keys.has('KeyS')) this.inputDir.z -= 1;
     if (this.keys.has('KeyA')) this.inputDir.x -= 1;
     if (this.keys.has('KeyD')) this.inputDir.x += 1;
 
@@ -159,17 +167,25 @@ export class FirstPersonCamera {
     this.velocity.x = damp(this.velocity.x, targetX, rate, dt);
     this.velocity.z = damp(this.velocity.z, targetZ, rate, dt);
 
-    // Apply movement
-    this.camera.position.x += this.velocity.x * dt;
-    this.camera.position.z += this.velocity.z * dt;
+    // Apply movement with wall collision
+    let newX = this.camera.position.x + this.velocity.x * dt;
+    let newZ = this.camera.position.z + this.velocity.z * dt;
+
+    if (this.boundsMin && this.boundsMax) {
+      newX = clamp(newX, this.boundsMin.x + this.PLAYER_RADIUS, this.boundsMax.x - this.PLAYER_RADIUS);
+      newZ = clamp(newZ, this.boundsMin.z + this.PLAYER_RADIUS, this.boundsMax.z - this.PLAYER_RADIUS);
+    }
+
+    this.camera.position.x = newX;
+    this.camera.position.z = newZ;
 
     // Smooth crouch/stand height transition
     const targetHeight = this.isCrouching ? this.config.crouchHeight : this.config.eyeHeight;
     this.camera.position.y = damp(this.camera.position.y, targetHeight, 8, dt);
 
     // Apply rotation
-    const euler = new THREE.Euler(this.pitch, this.yaw, 0, 'YXZ');
-    this.camera.quaternion.setFromEuler(euler);
+    this.euler.set(this.pitch, this.yaw, 0);
+    this.camera.quaternion.setFromEuler(this.euler);
   }
 
   /**
@@ -184,6 +200,15 @@ export class FirstPersonCamera {
    */
   getForward(): THREE.Vector3 {
     return this.forward.clone();
+  }
+
+  /**
+   * Set room bounds for simple wall collision.
+   * min/max are the world-space corners of the walkable area.
+   */
+  setRoomBounds(min: THREE.Vector3, max: THREE.Vector3): void {
+    this.boundsMin = min.clone();
+    this.boundsMax = max.clone();
   }
 
   dispose(): void {
