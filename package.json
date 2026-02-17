@@ -1,0 +1,21 @@
+{
+  "name": "the-guardians-vigil",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A hyper-realistic first-person babysitting simulation pushing the limits of 2026 browser technology",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.170.0",
+    "@webgpu/types": "^0.1.69",
+    "typescript": "^5.7.0",
+    "vite": "^6.1.0"
+  }
+}
