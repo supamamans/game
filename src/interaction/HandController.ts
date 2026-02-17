@@ -21,6 +21,8 @@ export interface HeldItem {
   name: string;
   slot: HandSlot;
   mesh: THREE.Object3D;
+  /** The cloned mesh attached to handGroup for display */
+  displayMesh: THREE.Object3D | null;
   /** Whether this item requires both hands */
   twoHanded: boolean;
 }
@@ -56,26 +58,26 @@ export class HandController {
         EventBus.emit('ui.message', 'Hands are full!');
         return false;
       }
-      const item: HeldItem = { objectId, name, slot: HandSlot.Both, mesh, twoHanded };
+      const item: HeldItem = { objectId, name, slot: HandSlot.Both, mesh, displayMesh: null, twoHanded };
+      item.displayMesh = this.attachToHand(mesh, HandSlot.Both);
       this.bothHands = item;
-      this.attachToHand(mesh, HandSlot.Both);
       EventBus.emit('hand.pickup', item);
       return true;
     }
 
     // Try right hand first, then left
     if (!this.rightHand && !this.bothHands) {
-      const item: HeldItem = { objectId, name, slot: HandSlot.Right, mesh, twoHanded };
+      const item: HeldItem = { objectId, name, slot: HandSlot.Right, mesh, displayMesh: null, twoHanded };
+      item.displayMesh = this.attachToHand(mesh, HandSlot.Right);
       this.rightHand = item;
-      this.attachToHand(mesh, HandSlot.Right);
       EventBus.emit('hand.pickup', item);
       return true;
     }
 
     if (!this.leftHand && !this.bothHands) {
-      const item: HeldItem = { objectId, name, slot: HandSlot.Left, mesh, twoHanded };
+      const item: HeldItem = { objectId, name, slot: HandSlot.Left, mesh, displayMesh: null, twoHanded };
+      item.displayMesh = this.attachToHand(mesh, HandSlot.Left);
       this.leftHand = item;
-      this.attachToHand(mesh, HandSlot.Left);
       EventBus.emit('hand.pickup', item);
       return true;
     }
@@ -106,7 +108,10 @@ export class HandController {
     }
 
     if (item) {
-      this.handGroup.remove(item.mesh);
+      if (item.displayMesh) {
+        this.handGroup.remove(item.displayMesh);
+        item.displayMesh = null;
+      }
       EventBus.emit('hand.drop', item);
     }
 
@@ -152,7 +157,7 @@ export class HandController {
     }
   }
 
-  private attachToHand(mesh: THREE.Object3D, slot: HandSlot): void {
+  private attachToHand(mesh: THREE.Object3D, slot: HandSlot): THREE.Object3D {
     // Position item relative to camera
     const clone = mesh.clone();
     clone.scale.set(0.3, 0.3, 0.3); // Scale down when held
@@ -170,6 +175,7 @@ export class HandController {
     }
 
     this.handGroup.add(clone);
+    return clone;
   }
 
   dispose(): void {
