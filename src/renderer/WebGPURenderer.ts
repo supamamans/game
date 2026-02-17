@@ -20,7 +20,7 @@ export class WebGPURenderer {
     // Scene setup
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x87ceeb); // Sky blue default
-    this.scene.fog = new THREE.Fog(0x87ceeb, 20, 50);
+    // Fog disabled - was hiding room geometry at close range
 
     // Camera setup - first person perspective
     this.camera = new THREE.PerspectiveCamera(

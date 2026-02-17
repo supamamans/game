@@ -27,7 +27,7 @@ export class RoomBuilder {
 
   private buildFloor(group: THREE.Group, room: RoomNode, color: number): void {
     const geo = new THREE.PlaneGeometry(room.width, room.depth);
-    const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.7, metalness: 0 });
+    const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.7, metalness: 0, side: THREE.DoubleSide });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.rotation.x = -Math.PI / 2;
     mesh.receiveShadow = true;
@@ -37,7 +37,7 @@ export class RoomBuilder {
 
   private buildCeiling(group: THREE.Group, room: RoomNode): void {
     const geo = new THREE.PlaneGeometry(room.width, room.depth);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.95 });
+    const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.95, side: THREE.DoubleSide });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.rotation.x = Math.PI / 2;
     mesh.position.y = room.height;
@@ -46,7 +46,7 @@ export class RoomBuilder {
   }
 
   private buildWalls(group: THREE.Group, room: RoomNode, doors: DoorInfo[], wallColor: number): void {
-    const mat = new THREE.MeshStandardMaterial({ color: wallColor, roughness: 0.9, metalness: 0 });
+    const mat = new THREE.MeshStandardMaterial({ color: wallColor, roughness: 0.9, metalness: 0, side: THREE.DoubleSide });
     const w = room.width;
     const d = room.depth;
     const h = room.height;
