@@ -11,9 +11,9 @@ export enum GPUTier {
 
 export async function detectGPU(): Promise<GPUTier> {
   // Check WebGPU
-  if ('gpu' in navigator) {
+  if (navigator.gpu) {
     try {
-      const adapter = await (navigator as Navigator & { gpu: GPU }).gpu.requestAdapter();
+      const adapter = await navigator.gpu.requestAdapter();
       if (adapter) {
         return GPUTier.WebGPU;
       }
