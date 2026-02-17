@@ -39,6 +39,7 @@ export class TestRoom {
       color: 0x8b6f47, // Warm wood color
       roughness: 0.7,
       metalness: 0.0,
+      side: THREE.DoubleSide,
     });
     const floor = new THREE.Mesh(geometry, material);
     floor.rotation.x = -Math.PI / 2;
@@ -52,6 +53,7 @@ export class TestRoom {
       color: 0xf5f0e8, // Off-white
       roughness: 0.9,
       metalness: 0.0,
+      side: THREE.DoubleSide,
     });
 
     // Back wall

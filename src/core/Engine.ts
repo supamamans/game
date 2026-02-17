@@ -256,9 +256,25 @@ export class Engine {
     this.rendererWrapper.scene.add(this.worldGroup);
     this.rendererWrapper.scene.add(this.lighting.group);
 
+    // Add a grid helper for spatial orientation
+    const gridHelper = new THREE.GridHelper(30, 30, 0x444444, 0x222222);
+    gridHelper.position.y = 0.01; // Just above floor
+    this.rendererWrapper.scene.add(gridHelper);
+
+    // Add axes helper for debugging direction
+    const axesHelper = new THREE.AxesHelper(3);
+    this.rendererWrapper.scene.add(axesHelper);
+
     // Set camera position to the center of the first room (living room)
     const startRoom = layout.rooms.find((r) => r.type === 'living_room') ?? layout.rooms[0];
     this.rendererWrapper.camera.position.set(startRoom.worldX, 1.7, startRoom.worldZ);
+
+    console.log(`[Engine] Start room: ${startRoom.type} at (${startRoom.worldX}, ${startRoom.worldZ}), size: ${startRoom.width}x${startRoom.depth}`);
+    console.log(`[Engine] Camera at: (${startRoom.worldX}, 1.7, ${startRoom.worldZ})`);
+    console.log(`[Engine] Total rooms: ${layout.rooms.length}, Total doors: ${layout.doors.length}`);
+    for (const r of layout.rooms) {
+      console.log(`  Room ${r.id} (${r.type}): center=(${r.worldX.toFixed(1)}, ${r.worldZ.toFixed(1)}), size=${r.width.toFixed(1)}x${r.depth.toFixed(1)}`);
+    }
 
     // Set room bounds for collision (use overall house bounds)
     const boundsMargin = 0.5;
