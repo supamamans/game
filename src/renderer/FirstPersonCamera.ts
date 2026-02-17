@@ -60,6 +60,7 @@ export class FirstPersonCamera {
   // Temp vectors (avoid allocation)
   private forward: THREE.Vector3 = new THREE.Vector3();
   private right: THREE.Vector3 = new THREE.Vector3();
+  private euler: THREE.Euler = new THREE.Euler(0, 0, 0, 'YXZ');
 
   constructor(camera: THREE.PerspectiveCamera, config?: Partial<FirstPersonConfig>) {
     this.camera = camera;
@@ -130,6 +131,8 @@ export class FirstPersonCamera {
    * Update camera position and rotation each frame.
    */
   update(dt: number): void {
+    if (!this.isLocked) return;
+
     // Build input direction from keys
     this.inputDir.set(0, 0, 0);
 
@@ -168,8 +171,8 @@ export class FirstPersonCamera {
     this.camera.position.y = damp(this.camera.position.y, targetHeight, 8, dt);
 
     // Apply rotation
-    const euler = new THREE.Euler(this.pitch, this.yaw, 0, 'YXZ');
-    this.camera.quaternion.setFromEuler(euler);
+    this.euler.set(this.pitch, this.yaw, 0);
+    this.camera.quaternion.setFromEuler(this.euler);
   }
 
   /**

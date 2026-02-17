@@ -106,8 +106,8 @@ export class ParticleEmitter {
       }
 
       // Physics
-      p.velocity.add(this.config.gravity.clone().multiplyScalar(dt));
-      p.position.add(p.velocity.clone().multiplyScalar(dt));
+      p.velocity.addScaledVector(this.config.gravity, dt);
+      p.position.addScaledVector(p.velocity, dt);
 
       // Interpolate size
       const t = p.age / p.lifetime;

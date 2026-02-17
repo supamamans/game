@@ -9,6 +9,7 @@
  * The WebGPU-specific code paths will diverge in Phase 3.
  */
 
+import * as THREE from 'three';
 import { WebGPURenderer } from './WebGPURenderer';
 
 export class FallbackRenderer extends WebGPURenderer {
@@ -17,7 +18,7 @@ export class FallbackRenderer extends WebGPURenderer {
 
     // Reduce quality for fallback
     this.renderer.setPixelRatio(1);
-    this.renderer.shadowMap.type = 1; // THREE.BasicShadowMap equivalent
+    this.renderer.shadowMap.type = THREE.BasicShadowMap;
     this.renderer.toneMappingExposure = 0.9;
   }
 }
