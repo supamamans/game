@@ -62,6 +62,11 @@ export class FirstPersonCamera {
   private right: THREE.Vector3 = new THREE.Vector3();
   private euler: THREE.Euler = new THREE.Euler(0, 0, 0, 'YXZ');
 
+  // Room bounds for collision (set via setRoomBounds)
+  private boundsMin: THREE.Vector3 | null = null;
+  private boundsMax: THREE.Vector3 | null = null;
+  private readonly PLAYER_RADIUS = 0.3; // collision margin from walls
+
   constructor(camera: THREE.PerspectiveCamera, config?: Partial<FirstPersonConfig>) {
     this.camera = camera;
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -162,9 +167,17 @@ export class FirstPersonCamera {
     this.velocity.x = damp(this.velocity.x, targetX, rate, dt);
     this.velocity.z = damp(this.velocity.z, targetZ, rate, dt);
 
-    // Apply movement
-    this.camera.position.x += this.velocity.x * dt;
-    this.camera.position.z += this.velocity.z * dt;
+    // Apply movement with wall collision
+    let newX = this.camera.position.x + this.velocity.x * dt;
+    let newZ = this.camera.position.z + this.velocity.z * dt;
+
+    if (this.boundsMin && this.boundsMax) {
+      newX = clamp(newX, this.boundsMin.x + this.PLAYER_RADIUS, this.boundsMax.x - this.PLAYER_RADIUS);
+      newZ = clamp(newZ, this.boundsMin.z + this.PLAYER_RADIUS, this.boundsMax.z - this.PLAYER_RADIUS);
+    }
+
+    this.camera.position.x = newX;
+    this.camera.position.z = newZ;
 
     // Smooth crouch/stand height transition
     const targetHeight = this.isCrouching ? this.config.crouchHeight : this.config.eyeHeight;
@@ -187,6 +200,15 @@ export class FirstPersonCamera {
    */
   getForward(): THREE.Vector3 {
     return this.forward.clone();
+  }
+
+  /**
+   * Set room bounds for simple wall collision.
+   * min/max are the world-space corners of the walkable area.
+   */
+  setRoomBounds(min: THREE.Vector3, max: THREE.Vector3): void {
+    this.boundsMin = min.clone();
+    this.boundsMax = max.clone();
   }
 
   dispose(): void {

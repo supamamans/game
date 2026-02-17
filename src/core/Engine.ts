@@ -5,6 +5,7 @@
  * Coordinates all subsystems: renderer, camera, clock, world.
  */
 
+import * as THREE from 'three';
 import { GPUTier } from '@renderer/detectGPU';
 import { WebGPURenderer } from '@renderer/WebGPURenderer';
 import { FallbackRenderer } from '@renderer/FallbackRenderer';
@@ -61,6 +62,12 @@ export class Engine {
     // Build the test room
     this.testRoom = new TestRoom();
     this.rendererWrapper.scene.add(this.testRoom.group);
+
+    // Set room bounds for camera collision (test room is 8x10, centered at origin)
+    this.cameraController.setRoomBounds(
+      new THREE.Vector3(-4, 0, -5),
+      new THREE.Vector3(4, 3, 5),
+    );
 
     // Set up lighting
     this.lighting = new Lighting();
