@@ -136,8 +136,8 @@ export class FirstPersonCamera {
     // Build input direction from keys
     this.inputDir.set(0, 0, 0);
 
-    if (this.keys.has('KeyW')) this.inputDir.z -= 1;
-    if (this.keys.has('KeyS')) this.inputDir.z += 1;
+    if (this.keys.has('KeyW')) this.inputDir.z += 1;
+    if (this.keys.has('KeyS')) this.inputDir.z -= 1;
     if (this.keys.has('KeyA')) this.inputDir.x -= 1;
     if (this.keys.has('KeyD')) this.inputDir.x += 1;
 
